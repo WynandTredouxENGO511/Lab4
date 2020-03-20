@@ -72,8 +72,10 @@ input[type=text] {
     background-color: #eeeeee;
 }
 
-#basetoggle {
+#basemenu {
     background: rgb(255, 255, 255, 0.9);
+    padding: 0 10px;
+    padding-top: 10px;
     /* Firefox 3.6 */
     -moz-background-clip: padding;
     /* Safari 4? Chrome 6? */

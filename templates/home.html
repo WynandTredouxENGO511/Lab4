@@ -26,19 +26,18 @@
     <!-- Create and display map -->
     <div id="map" style="height:600px; margin-left:10px; margin-right:10px; margin-bottom:10px;">
         <nav id="menu" style="top:50px;"></nav>
-        <nav id="basetoggle">
-            <div style="text-align: center; margin-bottom: -10px; padding: 10px 10px; border-radius: 3px;">
-                <form style="display: inline-block;">
-                    <label class="radio-inline">
-                  <input type="radio" name="basemap" value="street" checked>Street View&nbsp;&nbsp;
-                </label>
-                    <label class="radio-inline">
-                  <input type="radio" name="basemap" value="sat">Satellite View
-                </label>
-                </form>
-            </div>
+        <nav id="basemenu">
+            <input id="streets" type="radio" name="bmtoggle" value="streets" checked="checked" />
+            <label for="street">Street View&nbsp;&nbsp;</label>
+            <input id="dark" type="radio" name="bmtoggle" value="dark" />
+            <label for="dark">Dark Mode&nbsp;&nbsp;</label>
+            <input id="sat" type="radio" name="bmtoggle" value="satellite" />
+            <label for="satellite">Satellite View&nbsp;&nbsp;</label>
         </nav>
+
     </div>
+
+
 
     <script>
         mapboxgl.accessToken = 'pk.eyJ1Ijoid3luYW5kdHJlZG91eCIsImEiOiJjazdjaGZndzAwZXVtM21teThqZjhsdzBiIn0.MwhI6rhhXpMJ0LkjhXDUHg';
@@ -49,6 +48,39 @@
             zoom: 12 // starting zoom
         });
 
+        // add satellite layer
+        map.on('load', function() {
+            map.addLayer({
+                id: 'satellite',
+                source: {
+                    "type": "raster",
+                    "url": "mapbox://mapbox.satellite",
+                    "tileSize": 256
+                },
+                type: "raster",
+                layout: {
+                    "visibility": "none"
+                }
+            });
+        });
+
+        // add dark layer
+        map.on('load', function() {
+            map.addLayer({
+                id: 'dark',
+                source: {
+                    "type": "raster",
+                    "url": "mapbox://mapbox.dark",
+                    "tileSize": 256
+                },
+                type: "raster",
+                layout: {
+                    "visibility": "none"
+                }
+            });
+        });
+
+        // add schools
         map.on('load', function() {
             map.addLayer({
                 id: 'Schools',
@@ -66,14 +98,37 @@
         });
 
 
-        map.addControl(new mapboxgl.FullscreenControl());
-        map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+        map.addControl(new mapboxgl.FullscreenControl()); // map fullscreen button
+        map.addControl(new mapboxgl.NavigationControl(), 'top-left'); // map navigation control
 
+        // toggle between basemaps
+        var layerList = document.getElementById('basemenu');
+        var inputs = layerList.getElementsByTagName('input');
+
+        function switchLayer(layer) {
+            console.log('Toggle sat');
+            var layerId = layer.target.id;
+            if (layerId == "sat") {
+                map.setLayoutProperty('satellite', 'visibility', 'visible');
+                map.setLayoutProperty('dark', 'visibility', 'none');
+            } else if (layerId == "dark") {
+                map.setLayoutProperty('satellite', 'visibility', 'none');
+                map.setLayoutProperty('dark', 'visibility', 'visible');
+            } else {
+                map.setLayoutProperty('satellite', 'visibility', 'none');
+                map.setLayoutProperty('dark', 'visibility', 'none');
+            }
+        }
+
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].onclick = switchLayer;
+        }
+
+        // toggle for icon layers
         var toggleableLayerIds = ['Schools'];
 
         for (var i = 0; i < toggleableLayerIds.length; i++) {
             var id = toggleableLayerIds[i];
-
             var link = document.createElement('a');
             link.href = '#';
             link.className = 'active';
@@ -85,6 +140,7 @@
                 e.stopPropagation();
 
                 var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+                console.log('Toggle Schools');
 
                 if (visibility === 'visible') {
                     map.setLayoutProperty(clickedLayer, 'visibility', 'none');
@@ -98,36 +154,5 @@
             var layers = document.getElementById('menu');
             layers.appendChild(link);
         }
-
-
-        // street layer (default)
-        // var street = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-        //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        //     maxZoom: 18,
-        //     id: 'mapbox/streets-v11',
-        //     tileSize: 512,
-        //     zoomOffset: -1,
-        //     accessToken: 'pk.eyJ1Ijoid3luYW5kdHJlZG91eCIsImEiOiJjazdjaGZndzAwZXVtM21teThqZjhsdzBiIn0.MwhI6rhhXpMJ0LkjhXDUHg'
-        // }).addTo(mymap);
-        // // satellite layer
-        // var sat = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-        //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        //     maxZoom: 18,
-        //     id: 'mapbox/satellite-v9',
-        //     tileSize: 512,
-        //     zoomOffset: -1,
-        //     accessToken: 'pk.eyJ1Ijoid3luYW5kdHJlZG91eCIsImEiOiJjazdjaGZndzAwZXVtM21teThqZjhsdzBiIn0.MwhI6rhhXpMJ0LkjhXDUHg'
-        // });
-
-        // var layers = {
-        //     'Basic Street View': street,
-        //     'Satellite View': sat,
-        // };
-        // var overlay = {
-        //     //'Traffic Incident Heatmap': traffic,
-        //     //'*New and Improved* Traffic Incident Heatmap': traffic_new
-        // };
-        // // display map
-        // L.control.layers(layers, overlay).addTo(mymap);
     </script>
 </body>
