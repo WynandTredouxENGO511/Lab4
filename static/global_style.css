@@ -24,3 +24,69 @@ input[type=text] {
     margin-left: 10px;
     margin-bottom: 20px;
 }
+
+#menu {
+    background: rgb(214, 214, 214, 0.9);
+    /* Firefox 3.6 */
+    -moz-background-clip: padding;
+    /* Safari 4? Chrome 6? */
+    -webkit-background-clip: padding;
+    /* Firefox 4, Safari 5, Opera 10, IE 9 */
+    background-clip: padding-box;
+    position: absolute;
+    z-index: 1;
+    top: 10px;
+    right: 10px;
+    border-radius: 3px;
+    width: 120px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    font-family: 'Open Sans', sans-serif;
+}
+
+#menu a {
+    font-size: 13px;
+    color: #b8b8b8;
+    display: block;
+    margin: 0;
+    padding: 0;
+    padding: 10px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    text-align: center;
+}
+
+#menu a:last-child {
+    border: none;
+}
+
+#menu a:hover {
+    background-color: #d1d1d1;
+}
+
+#menu a.active {
+    background-color: #f8f8f8;
+    color: #404040;
+}
+
+#menu a.active:hover {
+    background-color: #eeeeee;
+}
+
+#basetoggle {
+    background: rgb(255, 255, 255, 0.9);
+    /* Firefox 3.6 */
+    -moz-background-clip: padding;
+    /* Safari 4? Chrome 6? */
+    -webkit-background-clip: padding;
+    /* Firefox 4, Safari 5, Opera 10, IE 9 */
+    background-clip: padding-box;
+    position: absolute;
+    z-index: 1;
+    top: 10px;
+    left: 50px;
+    border-radius: 3px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    color: #000000;
+}
