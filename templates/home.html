@@ -87,7 +87,7 @@
                 type: 'symbol',
                 source: {
                     type: 'geojson',
-                    data: 'https://data.calgary.ca/resource/fd9t-tdn2.geojson'
+                    data: "https://data.calgary.ca/resource/fd9t-tdn2.geojson"
                 },
                 layout: {
                     'icon-image': 'school-15',
@@ -97,6 +97,22 @@
             });
         });
 
+        // add hospitals
+        map.on('load', function() {
+            map.addLayer({
+                id: 'Hospitals/Clinics',
+                type: 'symbol',
+                source: {
+                    type: 'geojson',
+                    data: "https://data.calgary.ca/resource/x34e-bcjz.geojson?$where=type=='Hospital' OR type=='PHS Clinic'"
+                },
+                layout: {
+                    'icon-image': 'hospital-15',
+                    'icon-allow-overlap': true
+                },
+                paint: {}
+            });
+        });
 
         map.addControl(new mapboxgl.FullscreenControl()); // map fullscreen button
         map.addControl(new mapboxgl.NavigationControl(), 'top-left'); // map navigation control
@@ -125,7 +141,7 @@
         }
 
         // toggle for icon layers
-        var toggleableLayerIds = ['Schools'];
+        var toggleableLayerIds = ['Schools', 'Hospitals/Clinics'];
 
         for (var i = 0; i < toggleableLayerIds.length; i++) {
             var id = toggleableLayerIds[i];
@@ -140,7 +156,8 @@
                 e.stopPropagation();
 
                 var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
-                console.log('Toggle Schools');
+                //console.log('Toggle');
+                //console.log(clickedLayer);
 
                 if (visibility === 'visible') {
                     map.setLayoutProperty(clickedLayer, 'visibility', 'none');
@@ -154,5 +171,25 @@
             var layers = document.getElementById('menu');
             layers.appendChild(link);
         }
+
+        // add popups when the user hovers over an icon
+        var popup = new mapboxgl.Popup();
+
+        map.on('mousemove', function(e) {
+            var features = map.queryRenderedFeatures(e.point, {
+                layers: toggleableLayerIds
+            });
+            if (!features.length) {
+                popup.remove();
+                return;
+            }
+            var feature = features[0];
+
+            popup.setLngLat(feature.geometry.coordinates)
+                .setHTML(feature.properties.name)
+                .addTo(map);
+
+            map.getCanvas().style.cursor = features.length ? 'pointer' : '';
+        });
     </script>
 </body>
