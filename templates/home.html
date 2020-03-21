@@ -48,8 +48,9 @@
             zoom: 12 // starting zoom
         });
 
-        // add satellite layer
+        // after map loads
         map.on('load', function() {
+            // add satellite layer
             map.addLayer({
                 id: 'satellite',
                 source: {
@@ -62,10 +63,17 @@
                     "visibility": "none"
                 }
             });
-        });
 
-        // add dark layer
-        map.on('load', function() {
+            // nearest hospital layer
+            map.addSource('nearest-hospital', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                }
+            });
+
+            // add dark layer
             map.addLayer({
                 id: 'dark',
                 source: {
@@ -78,10 +86,8 @@
                     "visibility": "none"
                 }
             });
-        });
 
-        // add schools
-        map.on('load', function() {
+            // add schools
             map.addLayer({
                 id: 'Schools',
                 type: 'symbol',
@@ -95,10 +101,8 @@
                 },
                 paint: {}
             });
-        });
 
-        // add hospitals
-        map.on('load', function() {
+            // add hospitals
             map.addLayer({
                 id: 'Hospitals/Clinics',
                 type: 'symbol',
@@ -112,6 +116,59 @@
                 },
                 paint: {}
             });
+        });
+
+        // click on school -> add nearest hospital to above layer
+        map.on('click', function(e) {
+            // Get school feature that was clicked on
+            var SchoolFeatures = map.queryRenderedFeatures(e.point, {
+                layers: ['Schools']
+            });
+            if (!SchoolFeatures.length) {
+                console.log('Error: SchoolFeatures no length')
+                return;
+            }
+            var SchoolFeature = SchoolFeatures[0];
+
+            // get hospital features
+            var HospitalFeatures = map.querySourceFeatures('Hospitals/Clinics');
+            if (!HospitalFeatures.length) {
+                console.log('Error: HospitalFeatures no length')
+                return;
+            }
+            //convert HospitalFeatures from an array of features to a feature collection object
+            var HospitalFeatureCollection = {
+                type: 'FeatureCollection',
+                features: new Array(HospitalFeatures.length)
+            };
+            for (var i = 0; i < HospitalFeatures.length; i++) {
+                HospitalFeatureCollection.features[i] = HospitalFeatures[i]
+            }
+
+            // Using Turf, find the nearest hospital to school clicked
+            var nearestHospital = turf.nearest(SchoolFeature, HospitalFeatureCollection);
+
+            // If a nearest hospital is found
+            if (nearestHospital !== null) {
+                // Update the 'nearest-hospital' data source to include
+                // the nearest hospital
+                map.getSource('nearest-hospital').setData({
+                    type: 'FeatureCollection',
+                    features: [
+                        nearestHospital
+                    ]
+                });
+                // Create a new circle layer from the 'nearest-hospital' data source
+                map.addLayer({
+                    id: 'nearest-hospital',
+                    type: 'circle',
+                    source: 'nearest-hospital',
+                    paint: {
+                        'circle-radius': 12,
+                        'circle-color': '#486DE0'
+                    }
+                }, 'Hospitals/Clinics');
+            }
         });
 
         map.addControl(new mapboxgl.FullscreenControl()); // map fullscreen button
