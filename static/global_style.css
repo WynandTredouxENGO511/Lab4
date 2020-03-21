@@ -92,3 +92,11 @@ input[type=text] {
     font-size: 13px;
     color: #000000;
 }
+
+@media only screen and (max-width: 600px) {
+    #basemenu {
+        top: auto;
+        bottom: 30px;
+        left: 10px;
+    }
+}
