@@ -41,6 +41,13 @@
 
     <script>
         mapboxgl.accessToken = 'pk.eyJ1Ijoid3luYW5kdHJlZG91eCIsImEiOiJjazdjaGZndzAwZXVtM21teThqZjhsdzBiIn0.MwhI6rhhXpMJ0LkjhXDUHg';
+        // define global hospital features object
+        var global = this;
+        var HospitalFeatureCollection = {
+            type: 'FeatureCollection',
+            features: new Array(0)
+        };
+
         var map = new mapboxgl.Map({
             container: 'map', // container id
             style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
@@ -118,6 +125,17 @@
             });
         });
 
+        // once everything is loaded, populate global.HospitalFeatureCollection from Hospitals/Clinics layer
+        map.once('idle', () => {
+            // get hospital features
+            var HospitalFeatures = map.querySourceFeatures('Hospitals/Clinics');
+            //convert HospitalFeatures from an array of features to a feature collection object
+            global.HospitalFeatureCollection = {
+                type: 'FeatureCollection',
+                features: HospitalFeatures
+            };
+        });
+
         // click on school -> add nearest hospital to above layer
         map.on('click', function(e) {
             // Get school feature that was clicked on
@@ -130,23 +148,13 @@
             }
             var SchoolFeature = SchoolFeatures[0];
 
-            // get hospital features
-            var HospitalFeatures = map.querySourceFeatures('Hospitals/Clinics');
-            if (!HospitalFeatures.length) {
-                console.log('Error: HospitalFeatures no length')
+            if (!global.HospitalFeatureCollection.features.length) {
+                console.log('Error: HospitalFeatureCollection no length')
                 return;
-            }
-            //convert HospitalFeatures from an array of features to a feature collection object
-            var HospitalFeatureCollection = {
-                type: 'FeatureCollection',
-                features: new Array(HospitalFeatures.length)
-            };
-            for (var i = 0; i < HospitalFeatures.length; i++) {
-                HospitalFeatureCollection.features[i] = HospitalFeatures[i]
             }
 
             // Using Turf, find the nearest hospital to school clicked
-            var nearestHospital = turf.nearest(SchoolFeature, HospitalFeatureCollection);
+            var nearestHospital = turf.nearest(SchoolFeature, global.HospitalFeatureCollection);
 
             // If a nearest hospital is found
             if (nearestHospital !== null) {
