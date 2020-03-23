@@ -17,3 +17,4 @@ To allow uses to find the closest clinic to any school in calgary via an interac
 	/static/img - folder containing any images used on the site
 
 # Video Demo
+https://youtu.be/1uLB6kj3eHo
